@@ -10,6 +10,8 @@ namespace ChemicalMoleculeApi.Controllers
     public class MoleculeController(IMoleculeService moleculeService) : ControllerBase
     {
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<List<MoleculeResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<List<MoleculeResponse>>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiResponse<List<MoleculeResponse>>>> GetMolecules()
         {
             var response = await moleculeService.GetAllMoleculesAsync();
@@ -18,7 +20,11 @@ namespace ChemicalMoleculeApi.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ApiResponse<MoleculeResponse>>> GetMolecule(int id)
+        [ProducesResponseType(typeof(ApiResponse<MoleculeResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<MoleculeResponse>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<MoleculeResponse>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<MoleculeResponse>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<MoleculeResponse?>>> GetMolecule(int id)
         {
             var response = await moleculeService.GetMoleculeByIdAsync(id);
 
@@ -26,7 +32,10 @@ namespace ChemicalMoleculeApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<MoleculeResponse>>> AddMolecule(CreateMoleculeRequest molecule)
+        [ProducesResponseType(typeof(ApiResponse<MoleculeResponse>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse<MoleculeResponse>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<MoleculeResponse>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<MoleculeResponse>>> CreateMolecule(CreateMoleculeRequest molecule)
         {
             var response = await moleculeService.CreateMoleculeAsync(molecule);
             if (response.StatusCode is HttpStatusCode.Created && response.Result is not null)
@@ -40,6 +49,10 @@ namespace ChemicalMoleculeApi.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiResponse<bool>>> UpdateMolecule(int id, UpdateMoleculeRequest molecule)
         {
             var response = await moleculeService.UpdateMoleculeAsync(id, molecule);
@@ -48,6 +61,10 @@ namespace ChemicalMoleculeApi.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiResponse<bool>>> DeleteMolecule(int id)
         {
             var response = await moleculeService.DeleteMoleculeAsync(id);
