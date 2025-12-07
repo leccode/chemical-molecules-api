@@ -1,6 +1,6 @@
 ﻿namespace ChemicalMoleculeApi.Dtos
 {
-    public class MoleculeResponse
+    public record MoleculeResponse
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

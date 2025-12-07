@@ -1,6 +1,7 @@
 ﻿using ChemicalMoleculeApi.Dtos;
 using ChemicalMoleculeApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace ChemicalMoleculeApi.Controllers
 {
@@ -9,45 +10,49 @@ namespace ChemicalMoleculeApi.Controllers
     public class MoleculeController(IMoleculeService moleculeService) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<List<MoleculeResponse>>> GetMolecules()
-            => Ok(await moleculeService.GetAllMoleculesAsync());
+        public async Task<ActionResult<ApiResponse<List<MoleculeResponse>>>> GetMolecules()
+        {
+            var response = await moleculeService.GetAllMoleculesAsync();
+
+            return StatusCode((int)response.StatusCode, response);
+        }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<MoleculeResponse>> GetMolecule(int id)
+        public async Task<ActionResult<ApiResponse<MoleculeResponse>>> GetMolecule(int id)
         {
-            var molecule = await moleculeService.GetMoleculeByIdAsync(id);
+            var response = await moleculeService.GetMoleculeByIdAsync(id);
 
-            return molecule is null
-                ? NotFound("Molecule with given Id was not found.")
-                : Ok(molecule);
+            return StatusCode((int)response.StatusCode, response);
         }
 
         [HttpPost]
-        public async Task<ActionResult<MoleculeResponse>> AddMolecule(CreateMoleculeRequest molecule)
+        public async Task<ActionResult<ApiResponse<MoleculeResponse>>> AddMolecule(CreateMoleculeRequest molecule)
         {
-            var createdMolecule = await moleculeService.CreateMoleculeAsync(molecule);
+            var response = await moleculeService.CreateMoleculeAsync(molecule);
+            if (response.StatusCode is HttpStatusCode.Created && response.Result is not null)
+            {
+                return CreatedAtAction(nameof(GetMolecule),
+                    new { id = response.Result.Id },
+                    response);
+            }
 
-            return CreatedAtAction(nameof(GetMolecule), new { id = createdMolecule.Id }, createdMolecule);
+            return StatusCode((int)response.StatusCode, response);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> UpdateMolecule(int id, UpdateMoleculeRequest molecule)
+        public async Task<ActionResult<ApiResponse<bool>>> UpdateMolecule(int id, UpdateMoleculeRequest molecule)
         {
-            var isUpdated = await moleculeService.UpdateMoleculeAsync(id, molecule);
+            var response = await moleculeService.UpdateMoleculeAsync(id, molecule);
 
-            return isUpdated
-                ? NoContent()
-                : NotFound("Molecule with given Id was not found.");
+            return StatusCode((int)response.StatusCode, response);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> DeleteMolecule(int id)
+        public async Task<ActionResult<ApiResponse<bool>>> DeleteMolecule(int id)
         {
-            var isDeleted = await moleculeService.DeleteMoleculeAsync(id);
+            var response = await moleculeService.DeleteMoleculeAsync(id);
 
-            return isDeleted
-                ? NoContent()
-                : NotFound("Molecule with given Id was not found.");
+            return StatusCode((int)response.StatusCode, response);
         }
     }
 }

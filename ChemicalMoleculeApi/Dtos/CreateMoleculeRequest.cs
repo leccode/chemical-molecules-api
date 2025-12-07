@@ -1,6 +1,6 @@
 ﻿namespace ChemicalMoleculeApi.Dtos
 {
-    public class CreateMoleculeRequest
+    public record CreateMoleculeRequest
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
